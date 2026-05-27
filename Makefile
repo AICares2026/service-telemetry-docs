@@ -34,22 +34,22 @@ k8s-auth:
 k8s-namespace: k8s-auth
 	kubectl create namespace $(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -
 
-# Transfer ownership of any existing k8s resources from a previous Helm release
-.PHONY: helm-adopt
-helm-adopt:
+# Delete resources owned by a previous Helm release so our release can create them fresh.
+# Required when spec.selector is immutable and the old chart used different labels.
+.PHONY: helm-purge-old
+helm-purge-old:
+	@echo "Removing old resources for $(SERVICE_NAME) if owned by another release..."
 	@for kind in deployment service configmap serviceaccount; do \
-	  if kubectl get $$kind $(SERVICE_NAME) -n $(NAMESPACE) >/dev/null 2>&1; then \
-	    echo "Adopting $$kind/$(SERVICE_NAME) into release service-$(SERVICE_NAME)"; \
-	    kubectl annotate $$kind $(SERVICE_NAME) -n $(NAMESPACE) \
-	      meta.helm.sh/release-name=service-$(SERVICE_NAME) \
-	      meta.helm.sh/release-namespace=$(NAMESPACE) --overwrite; \
-	    kubectl label $$kind $(SERVICE_NAME) -n $(NAMESPACE) \
-	      app.kubernetes.io/managed-by=Helm --overwrite; \
+	  owner=$$(kubectl get $$kind $(SERVICE_NAME) -n $(NAMESPACE) \
+	    -o jsonpath='{.metadata.annotations.meta\.helm\.sh/release-name}' 2>/dev/null); \
+	  if [ -n "$$owner" ] && [ "$$owner" != "service-$(SERVICE_NAME)" ]; then \
+	    echo "  Deleting $$kind/$(SERVICE_NAME) (owned by '$$owner')"; \
+	    kubectl delete $$kind $(SERVICE_NAME) -n $(NAMESPACE) --ignore-not-found; \
 	  fi \
 	done
 
 .PHONY: deploy
-deploy: k8s-namespace helm-adopt
+deploy: k8s-namespace helm-purge-old
 	helm upgrade --install service-$(SERVICE_NAME) $(HELM_CHART) \
 	  --namespace $(NAMESPACE) \
 	  --values $(HELM_VALUES) \
