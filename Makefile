@@ -34,8 +34,22 @@ k8s-auth:
 k8s-namespace: k8s-auth
 	kubectl create namespace $(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -
 
+# Transfer ownership of any existing k8s resources from a previous Helm release
+.PHONY: helm-adopt
+helm-adopt:
+	@for kind in deployment service configmap serviceaccount; do \
+	  if kubectl get $$kind $(SERVICE_NAME) -n $(NAMESPACE) >/dev/null 2>&1; then \
+	    echo "Adopting $$kind/$(SERVICE_NAME) into release service-$(SERVICE_NAME)"; \
+	    kubectl annotate $$kind $(SERVICE_NAME) -n $(NAMESPACE) \
+	      meta.helm.sh/release-name=service-$(SERVICE_NAME) \
+	      meta.helm.sh/release-namespace=$(NAMESPACE) --overwrite; \
+	    kubectl label $$kind $(SERVICE_NAME) -n $(NAMESPACE) \
+	      app.kubernetes.io/managed-by=Helm --overwrite; \
+	  fi \
+	done
+
 .PHONY: deploy
-deploy: k8s-namespace
+deploy: k8s-namespace helm-adopt
 	helm upgrade --install service-$(SERVICE_NAME) $(HELM_CHART) \
 	  --namespace $(NAMESPACE) \
 	  --values $(HELM_VALUES) \
