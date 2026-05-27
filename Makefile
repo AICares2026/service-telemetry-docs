@@ -1,3 +1,7 @@
+# Load .env.local if present
+-include .env.local
+export
+
 ECR_REGISTRY ?= 952893849914.dkr.ecr.us-east-1.amazonaws.com
 ECR_REPO     ?= aicares-application
 AWS_REGION   ?= us-east-1
