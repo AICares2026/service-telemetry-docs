@@ -38,8 +38,8 @@ k8s-namespace: k8s-auth
 # them fresh (required when spec.selector is immutable and labels differ).
 .PHONY: k8s-clean
 k8s-clean:
-	kubectl delete deployment $(SERVICE_NAME) -n $(NAMESPACE) --ignore-not-found
-	kubectl delete service    $(SERVICE_NAME) -n $(NAMESPACE) --ignore-not-found
+	kubectl delete deployment service-$(SERVICE_NAME) -n $(NAMESPACE) --ignore-not-found
+	kubectl delete service    service-$(SERVICE_NAME) -n $(NAMESPACE) --ignore-not-found
 
 .PHONY: deploy
 deploy: k8s-namespace k8s-clean
@@ -58,4 +58,4 @@ undeploy:
 
 .PHONY: status
 status: k8s-auth
-	kubectl get pods,svc -n $(NAMESPACE) -l app=$(SERVICE_NAME)
+	kubectl get pods,svc -n $(NAMESPACE) -l app=service-$(SERVICE_NAME)

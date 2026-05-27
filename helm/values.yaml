@@ -1,5 +1,5 @@
 service:
-  name: telemetry-docs
+  name: service-telemetry-docs
 image:
   repository: 952893849914.dkr.ecr.us-east-1.amazonaws.com/aicares-application/telemetry-docs
 containerPort: 8000
