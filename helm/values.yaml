@@ -1,0 +1,16 @@
+service:
+  name: telemetry-docs
+image:
+  repository: 952893849914.dkr.ecr.us-east-1.amazonaws.com/aicares-application/telemetry-docs
+containerPort: 8000
+resources:
+  limits:
+    memory: "100Mi"
+  requests:
+    memory: "32Mi"
+    cpu: "50m"
+env:
+  - name: TELEMETRY_DOCS_PORT
+    value: "8000"
+nodeSelector:
+  eks.amazonaws.com/nodegroup: graviton-workers
