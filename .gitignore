@@ -15,3 +15,4 @@ Pods/
 *.o
 *.so
 .env.local
+.idea/
