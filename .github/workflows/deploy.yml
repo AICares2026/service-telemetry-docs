@@ -31,6 +31,8 @@ jobs:
       - name: Build and push image
         run: |
           docker build -f Dockerfile \
+            --build-arg BUILDPLATFORM=linux/amd64 \
+            --build-arg TARGETARCH=amd64 \
             -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }} .
           docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
 
