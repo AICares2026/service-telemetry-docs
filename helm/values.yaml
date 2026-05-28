@@ -1,7 +1,10 @@
 service:
   name: service-telemetry-docs
+  namespace: aicares
 image:
   repository: 952893849914.dkr.ecr.us-east-1.amazonaws.com/aicares-application/telemetry-docs
+  tag: latest
+  pullPolicy: Always
 containerPort: 8000
 resources:
   limits:
@@ -10,6 +13,12 @@ resources:
     memory: "32Mi"
     cpu: "50m"
 env:
+  - name: OTEL_SERVICE_NAME
+    value: "telemetry-docs"
+  - name: OTEL_COLLECTOR_HOST
+    value: "otel-collector"
+  - name: OTEL_COLLECTOR_PORT_GRPC
+    value: "4317"
   - name: TELEMETRY_DOCS_PORT
     value: "8000"
 nodeSelector:
