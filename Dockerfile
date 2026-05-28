@@ -12,7 +12,7 @@ WORKDIR /workspace
 COPY telemetry-schema /workspace/telemetry-schema
 
 # Copy the Weaver templates
-COPY src/telemetry-docs/templates /workspace/templates
+COPY ./templates /workspace/templates
 
 # Generate service-centric pages and mkdocs.yml using Weaver
 RUN /weaver/weaver registry generate \
@@ -35,7 +35,7 @@ WORKDIR /app
 
 RUN pip install --no-cache-dir mkdocs mkdocs-material
 
-COPY src/telemetry-docs/mkdocs.yml /app/mkdocs-base.yml
+COPY ./mkdocs.yml /app/mkdocs-base.yml
 COPY --from=registry-builder /workspace/docs /app/docs
 
 RUN mv /app/docs/mkdocs.yml /app/mkdocs.yml && \
@@ -47,7 +47,7 @@ FROM docker.io/nginxinc/nginx-unprivileged:1.29-alpine3.23-otel
 USER 101
 
 COPY --from=site-builder /app/site /static
-COPY src/telemetry-docs/nginx.conf.template /nginx.conf.template
+COPY ./nginx.conf.template /nginx.conf.template
 
 EXPOSE ${TELEMETRY_DOCS_PORT}
 
