@@ -50,6 +50,8 @@ jobs:
 
       - name: Delete conflicting resources
         run: |
+          kubectl delete deployment ${{ env.SERVICE_NAME }} -n ${{ env.NAMESPACE }} --ignore-not-found
+          kubectl delete service    ${{ env.SERVICE_NAME }} -n ${{ env.NAMESPACE }} --ignore-not-found
           kubectl delete deployment service-${{ env.SERVICE_NAME }} -n ${{ env.NAMESPACE }} --ignore-not-found
           kubectl delete service    service-${{ env.SERVICE_NAME }} -n ${{ env.NAMESPACE }} --ignore-not-found
 
